@@ -1,0 +1,203 @@
+<!doctype html><html><head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <script src="https://myhub.ia.br/canvas-vendor/tailwind.js"></script>
+    <style>body{margin:0;padding:16px;box-sizing:border-box;font-family:system-ui,sans-serif;}</style>
+    </head><body><meta name="viewport" content="width=device-width, initial-scale=1">
+<div id="app"></div>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#f3f6f9;color:#172b3a;font-family:Arial,sans-serif}
+  .wrap{max-width:1000px;margin:auto;padding:20px}
+  .hero{background:linear-gradient(135deg,#103b4b,#176b67);color:white;padding:26px;border-radius:22px}
+  .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.8}
+  h1{font-size:clamp(24px,5vw,38px);margin:10px 0 8px}
+  .hero p{max-width:680px;line-height:1.55;margin:0;color:#e4f2ef}
+  .notice{margin:16px 0;padding:14px 16px;border-radius:14px;background:#fff5d9;border:1px solid #edcf7c;color:#614b13;line-height:1.5;font-size:14px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+  .card{background:white;border:1px solid #e1e8ed;border-radius:16px;padding:15px}
+  .card .label{font-size:12px;color:#61717d}
+  .card strong{display:block;font-size:25px;margin-top:5px}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+  input,select,button{font:inherit}
+  .search{flex:1;min-width:190px;padding:12px 14px;border:1px solid #ccd7de;border-radius:12px;background:white}
+  select{padding:12px;border:1px solid #ccd7de;border-radius:12px;background:white}
+  .addbtn{border:0;border-radius:12px;background:#176b67;color:white;font-weight:700;padding:12px 16px;cursor:pointer}
+  .tabs{display:flex;gap:8px;margin:8px 0 14px;overflow:auto}
+  .tab{white-space:nowrap;border:1px solid #d8e2e7;background:#fff;color:#35505e;border-radius:999px;padding:9px 14px;cursor:pointer}
+  .tab.active{background:#103b4b;color:#fff;border-color:#103b4b}
+  .list{display:grid;gap:10px}
+  .item{display:flex;align-items:center;gap:13px;background:white;border:1px solid #e1e8ed;border-radius:15px;padding:14px}
+  .item.done{border-color:#a8d6c7;background:#f3fbf7}
+  .check{width:22px;height:22px;accent-color:#148267;flex:0 0 auto}
+  .itemmain{min-width:0;flex:1}
+  .name{font-weight:700;line-height:1.35}
+  .meta{font-size:13px;color:#657681;margin-top:4px}
+  .badge{font-size:11px;white-space:nowrap;padding:5px 8px;border-radius:999px;background:#edf2f5;color:#405562}
+  .done .badge{background:#d9f0e6;color:#126347}
+  .empty{padding:26px;background:#fff;border-radius:15px;text-align:center;color:#657681}
+  .footer{font-size:12px;color:#657681;line-height:1.6;margin:20px 2px}
+  .footer a{color:#126c72}
+  dialog{border:0;border-radius:18px;padding:22px;width:min(440px,calc(100% - 24px));box-shadow:0 20px 70px #17374644}
+  dialog::backdrop{background:#102a3890}
+  dialog h2{margin:0 0 15px}
+  .formrow{display:grid;gap:6px;margin:12px 0}
+  .formrow input,.formrow select{width:100%;padding:11px;border:1px solid #ccd7de;border-radius:10px}
+  .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+  .cancel{border:1px solid #ccd7de;background:white;border-radius:10px;padding:10px 14px;cursor:pointer}
+  @media(max-width:600px){.wrap{padding:13px}.hero{padding:21px}.cards{gap:8px}.card{padding:12px}.card strong{font-size:21px}.item{padding:12px}.badge{font-size:10px}}
+</style>
+<script>
+const baseItems = [
+  {id:"ubs-aguas-brancas",name:"USF Águas Brancas",type:"UBS",place:"Águas Brancas"},
+  {id:"ubs-alto-jose-leal",name:"USF Alto José Leal",type:"UBS",place:"Alto José Leal"},
+  {id:"ubs-alto-jose-leal-ii",name:"USF Alto José Leal II",type:"UBS",place:"Alto José Leal"},
+  {id:"ubs-amparo",name:"USF Amparo",type:"UBS",place:"Amparo"},
+  {id:"ubs-bela-vista-i",name:"USF Bela Vista I",type:"UBS",place:"Bela Vista"},
+  {id:"ubs-bela-vista-ii",name:"USF Bela Vista II",type:"UBS",place:"Bela Vista"},
+  {id:"ubs-caic",name:"USF CAIC",type:"UBS",place:"Águas Brancas"},
+  {id:"ubs-caicara",name:"USF Caiçara",type:"UBS",place:"Caiçara"},
+  {id:"ubs-cajueiro",name:"UBS Cajueiro",type:"UBS",place:"Cajueiro",visited:true},
+  {id:"ubs-cidade-de-deus",name:"USF Cidade de Deus",type:"UBS",place:"Cidade de Deus"},
+  {id:"ubs-matadouro",name:"USF do Matadouro",type:"UBS",place:"Matadouro"},
+  {id:"ubs-dr-alvinho",name:"USF Dr. Alvinho",type:"UBS",place:"Nossa Senhora do Amparo"},
+  {id:"ubs-galileia",name:"USF Galileia",type:"UBS",place:"Zona rural"},
+  {id:"ubs-gamileira",name:"USF Gamileira",type:"UBS",place:"Sítio Gamileira"},
+  {id:"ubs-ira",name:"USF Ira",type:"UBS",place:"Loteamento Conceição"},
+  {id:"ubs-jardim-ipiranga",name:"USF Jardim Ipiranga",type:"UBS",place:"Jardim Ipiranga",visited:true},
+  {id:"ubs-jardim-ipiranga-ii",name:"USF Jardim Ipiranga II",type:"UBS",place:"Jardim Ipiranga"},
+  {id:"ubs-ladeira-de-pedras",name:"USF Ladeira de Pedras",type:"UBS",place:"Zona rural"},
+  {id:"ubs-lagoa-redonda",name:"USF Lagoa Redonda",type:"UBS",place:"Lagoa Redonda"},
+  {id:"ubs-livramento",name:"UBS / USF Livramento",type:"UBS",place:"Livramento",visited:true},
+  {id:"ubs-lidia-queiroz",name:"USF Lídia Queiroz",type:"UBS",place:"Lídia Queiroz"},
+  {id:"ubs-loteamento-bau",name:"USF Loteamento de Baú",type:"UBS",place:"Bela Vista",visited:true},
+  {id:"ubs-conceicao-i",name:"USF Loteamento Conceição I",type:"UBS",place:"Loteamento Conceição"},
+  {id:"ubs-conceicao-ii",name:"USF Loteamento Conceição II",type:"UBS",place:"Loteamento Conceição"},
+  {id:"ubs-luiz-gonzaga",name:"USF Luiz Gonzaga",type:"UBS",place:"Loteamento Luiz Gonzaga"},
+  {id:"ubs-maranhao",name:"USF Maranhão",type:"UBS",place:"Maranhão"},
+  {id:"ubs-maranhao-anexo",name:"USF Maranhão Anexo",type:"UBS",place:"Redenção"},
+  {id:"ubs-maues",name:"USF Maués",type:"UBS",place:"Maués"},
+  {id:"ubs-matriz",name:"UBS Matriz / Clínica do Idoso",type:"UBS",place:"Matriz",visited:true},
+  {id:"ubs-matriz-anexo",name:"USF Matriz Anexo Primitivo",type:"UBS",place:"Matriz"},
+  {id:"ubs-militina",name:"USF Militina",type:"UBS",place:"Militina"},
+  {id:"ubs-pacas",name:"USF Pacas",type:"UBS",place:"Pacas"},
+  {id:"ubs-pirituba-ii",name:"USF Pirituba II",type:"UBS",place:"Pirituba"},
+  {id:"ubs-redencao",name:"UBS Redenção",type:"UBS",place:"Redenção",visited:true},
+  {id:"ubs-mario-bezerra",name:"UBS Mário Bezerra",type:"UBS",place:"Mário Bezerra",visited:true},
+  {id:"ubs-jardim-sao-pedro-i",name:"USF Jardim São Pedro I",type:"UBS",place:"Jardim São Pedro"},
+  {id:"ubs-pacs-1",name:"PACS 1 Vitória de Santo Antão",type:"UBS",place:"Matriz"},
+  {id:"ubs-pacs-2",name:"PACS 2 Vitória de Santo Antão",type:"UBS",place:"Livramento"},
+  {id:"ubs-expresso-saude",name:"Expresso Saúde Moto Táxi e Taxista",type:"UBS",place:"Matriz"},
+  {id:"ubs-anexo-alto-reservatorio",name:"Anexo Alto do Reservatório",type:"UBS",place:"Alto do Reservatório"},
+  {id:"ubs-base-samu",name:"Base Descentralizada do SAMU",type:"UBS",place:"Redenção"},
+  {id:"ubs-jardim-ipiranga-visitado-registro",name:"Unidade de Saúde Jardim Ipiranga (registro da planilha)",type:"UBS",place:"Jardim Ipiranga",visited:true},
+  {id:"school-major-manoel-fortunato",name:"Escola Municipal Major Manoel Fortunato",type:"Escola",place:"Caja"},
+  {id:"school-gilvanete-vieira-guedes",name:"Escola Municipal Professora Gilvanete Vieira Guedes",type:"Escola",place:"São Vicente de Paulo"},
+  {id:"school-3-agosto",name:"Colégio Municipal 3 de Agosto",type:"Escola",place:"Livramento"},
+  {id:"school-prefeito-manoel-holanda",name:"Escola Municipal Prefeito Manoel de Holanda Cavalcanti",type:"Escola",place:"Bela Vista"},
+  {id:"school-rosa-amelia",name:"Escola Municipal Rosa Amélia de Queiroz",type:"Escola",place:"Santana"},
+  {id:"school-pedro-ribeiro",name:"Escola Municipal Pedro Ribeiro",type:"Escola",place:"Matriz"},
+  {id:"school-caic-diogo-braga",name:"CAIC Diogo de Braga",type:"Escola",place:"Caja"},
+  {id:"school-eunice-vasconcelos",name:"CMEI Creche Municipal Professora Eunice de Vasconcelos Xavier",type:"Escola",place:"Maués"},
+  {id:"school-severina-andrade",name:"CMEI Creche Municipal Professora Severina de Andrade Moura",type:"Escola",place:"Lídia Queiroz"},
+  {id:"school-jose-joaquim",name:"Colégio Municipal Prefeito José Joaquim da Silva",type:"Escola",place:"São Vicente de Paulo"},
+  {id:"school-josefa-alvares",name:"Escola Municipal Josefa Álvares da Silva",type:"Escola",place:"Livramento"},
+  {id:"school-mariana-amalia",name:"Escola Municipal Mariana Amália",type:"Escola",place:"Livramento"},
+  {id:"school-jose-melo-xavier",name:"Escola Municipal José de Melo Xavier Junior",type:"Escola",place:"Lídia Queiroz"},
+  {id:"school-julio-augusto",name:"Escola Municipal Júlio Augusto Siqueira",type:"Escola",place:"Lídia Queiroz"},
+  {id:"school-lidia-queiroz-costa",name:"Escola Municipal Lídia Queiroz Costa",type:"Escola",place:"Lídia Queiroz"},
+  {id:"school-severino-krause",name:"Escola Municipal Severino Joaquim Krause Gonçalves",type:"Escola",place:"Lídia Queiroz"},
+  {id:"school-carice-tabocas",name:"Escola Municipal Carice de Tabocas",type:"Escola",place:"Carice de Tabocas"}
+];
+
+function readHash(){
+  try{return JSON.parse(decodeURIComponent(location.hash.slice(1)||"{}"))}catch(e){return {}}
+}
+const saved = readHash();
+let items = baseItems.map(x=>({...x,visited:saved.visited ? saved.visited.includes(x.id) : !!x.visited}));
+if(Array.isArray(saved.custom)) items=items.concat(saved.custom);
+let activeType="Todos", activeStatus="Todas", query="";
+const app=document.getElementById("app");
+
+function persist(){
+  const data={visited:items.filter(x=>x.visited).map(x=>x.id),custom:items.filter(x=>x.custom)};
+  history.replaceState(null,"","#"+encodeURIComponent(JSON.stringify(data)));
+}
+function render(){
+  const ubs=items.filter(x=>x.type==="UBS"), schools=items.filter(x=>x.type==="Escola");
+  const total=items.length, done=items.filter(x=>x.visited).length;
+  app.innerHTML=`
+  <main class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Painel de campo · Vitória de Santo Antão, PE</div>
+      <h1>Mapa de visitas</h1>
+      <p>Acompanhe as visitas a unidades de saúde e escolas municipais. Marque cada local conforme a equipe concluir o mapeamento.</p>
+    </header>
+    <div class="notice"><strong>Catálogo inicial, ainda incompleto.</strong> As referências consultadas indicam 41 UBS e 56 escolas municipais. Esta versão reúne nomes encontrados nas fontes e na sua planilha; confirme o cadastro municipal antes de considerar a relação completa. As 7 marcações de saúde vêm dos registros de visita enviados.</div>
+    <section class="cards">
+      <div class="card"><div class="label">Visitas marcadas</div><strong>${done} / ${total}</strong></div>
+      <div class="card"><div class="label">Saúde · itens nesta versão</div><strong>${ubs.filter(x=>x.visited).length} / ${ubs.length}</strong></div>
+      <div class="card"><div class="label">Escolas · itens nesta versão</div><strong>${schools.filter(x=>x.visited).length} / ${schools.length}</strong></div>
+    </section>
+    <div class="controls">
+      <input id="search" class="search" placeholder="Buscar equipamento ou bairro..." value="${esc(query)}">
+      <select id="status"><option value="Todas">Todas as visitas</option><option value="Pendentes">Pendentes</option><option value="Visitadas">Visitadas</option></select>
+      <button class="addbtn" id="add">＋ Adicionar local</button>
+    </div>
+    <nav class="tabs">
+      ${["Todos","UBS","Escola"].map(t=>`<button class="tab ${activeType===t?"active":""}" data-type="${t}">${t==="UBS"?"Saúde · UBS e postos":t==="Escola"?"Educação · escolas municipais":"Todos"}</button>`).join("")}
+    </nav>
+    <section class="list" id="list"></section>
+    <div class="footer">
+      Lista de referência: <a href="https://www.meupostinho.com.br/brasil/nordeste/pe/pernambuco/2616407-vitoria-de-santo-antao" target="_blank" rel="noopener">MeuPostinho / dados CNES</a>,
+      <a href="https://www.superplano.com.br/pe/vitoria-de-santo-antao/ubs-postos" target="_blank" rel="noopener">SuperPlano</a> e
+      <a href="https://escolas.com.br/municipais/pe/vitoria-de-santo-antao" target="_blank" rel="noopener">Escolas.com.br</a>.
+      A contagem e os nomes podem variar conforme critério e atualização cadastral. O progresso é guardado no endereço da página (fragmento da URL); copie o link atualizado para transportar esse estado.
+    </div>
+  </main>
+  <dialog id="dlg">
+    <form id="newForm">
+      <h2>Adicionar equipamento</h2>
+      <label class="formrow">Nome<input id="newName" required maxlength="120" placeholder="Nome da unidade ou escola"></label>
+      <label class="formrow">Categoria<select id="newType"><option value="UBS">UBS / posto de saúde</option><option value="Escola">Escola municipal</option></select></label>
+      <label class="formrow">Bairro / comunidade<input id="newPlace" maxlength="80" placeholder="Opcional"></label>
+      <div class="actions"><button type="button" class="cancel" id="cancel">Cancelar</button><button class="addbtn" type="submit">Salvar local</button></div>
+    </form>
+  </dialog>`;
+  document.getElementById("status").value=activeStatus;
+  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{activeType=b.dataset.type;render()});
+  document.getElementById("search").oninput=e=>{query=e.target.value;drawList()};
+  document.getElementById("status").onchange=e=>{activeStatus=e.target.value;drawList()};
+  const dlg=document.getElementById("dlg");
+  document.getElementById("add").onclick=()=>dlg.showModal();
+  document.getElementById("cancel").onclick=()=>dlg.close();
+  document.getElementById("newForm").onsubmit=e=>{
+    e.preventDefault();
+    const nm=document.getElementById("newName").value.trim();
+    const id="custom-"+Date.now();
+    items.push({id,name:nm,type:document.getElementById("newType").value,place:document.getElementById("newPlace").value.trim()||"Bairro não informado",visited:false,custom:true});
+    persist();dlg.close();render();
+  };
+  drawList();
+}
+function drawList(){
+  const filtered=items.filter(x=>{
+    const typeOK=activeType==="Todos"||x.type===activeType;
+    const statusOK=activeStatus==="Todas"||(activeStatus==="Visitadas"?x.visited:!x.visited);
+    const hay=(x.name+" "+x.place).toLocaleLowerCase("pt-BR");
+    return typeOK&&statusOK&&hay.includes(query.toLocaleLowerCase("pt-BR"));
+  });
+  const list=document.getElementById("list");
+  if(!filtered.length){list.innerHTML='<div class="empty">Nenhum equipamento encontrado com esses filtros.</div>';return}
+  list.innerHTML=filtered.map(x=>`<label class="item ${x.visited?"done":""}">
+    <input class="check" type="checkbox" data-id="${esc(x.id)}" ${x.visited?"checked":""} aria-label="Marcar visita de ${esc(x.name)}">
+    <span class="itemmain"><span class="name">${esc(x.name)}</span><span class="meta">${esc(x.place)} · ${x.type==="UBS"?"Saúde":"Educação"}${x.custom?" · adicionado por você":""}</span></span>
+    <span class="badge">${x.visited?"Visitado":"Pendente"}</span>
+  </label>`).join("");
+  list.querySelectorAll(".check").forEach(c=>c.onchange=()=>{
+    const it=items.find(x=>x.id===c.dataset.id);if(it)it.visited=c.checked;
+    persist();render();
+  });
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+render();
+</script></body></html>
